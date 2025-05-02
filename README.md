@@ -1,39 +1,6 @@
-# Project Documentation
+# LTE-Redirection_Attack
 
-## Project Index
-
-### Top-Level Files and Directories
-- `build.sh`: Main build/setup script for installing dependencies and preparing the environment.
-- `run.sh`: Main script to launch the system, configure interfaces, and start services/containers.
-- `reset_tables.sh`: Script for resetting database or system tables.
-- `srsran_performance`: Likely a script or binary for SRSRAN performance testing.
-- `run_menu`: Possibly a menu-driven script for running options.
-- `srsepc_if_masq.sh`: Script for interface masquerading (NAT) for SRS EPC.
-- `osmocom.sh`: Script to set up or start Osmocom components.
-- `choose_interface.sh`: Script to select a network interface.
-- `dns_forward.sh`: Script for DNS forwarding.
-- `docker-compose.yml`: Top-level Docker Compose file (if used).
-- `forward.sh`: Script for forwarding network traffic.
-- `init_pyenv.sh`: Script to initialize a Python environment.
-- `openlte.sh`: Script to set up or start OpenLTE.
-- `operator`: Likely a config or data file.
-- `.config`, `.config.old`: Configuration files.
-- `Dockerfile`: Top-level Dockerfile (if used).
-- `LICENSE`: License file.
-- `README.md`: Existing readme file.
-
-#### Directories
-- `scripts/`: Contains utility and helper scripts (e.g., 2G.sh, asterisk.sh, check_hw.sh, telnet scripts).
-- `builder/`: Contains Dockerfiles, compose files, and subdirectories for different SDR hardware (e.g., bladerf, limesdr, usrp, ubuntu, end_hw).
-- `osmo_egprs/`: Contains configs, scripts, Dockerfiles, and binaries for Osmocom EGPRS.
-- `redirect_4_2g/`: Contains configs, scripts, Dockerfiles for 2G redirection.
-- `asterisk/`: Contains configs, Dockerfiles, and compose files for Asterisk PBX.
-- `openlte_redir_install/`: Contains Dockerfiles, compose files, and patches for OpenLTE redirection.
-- `osmocom_installation/`: Contains scripts and subdirectories for installing various Osmocom components (bsc, bts, ggsn, hlr, etc.).
-
----
-
-## High-Level Overview
+## Overview
 
 This project is a research and testing platform for cellular network redirection attacks, specifically targeting LTE and 2G (EGPRS) networks. It automates the setup of a multi-component environment using Docker containers, SDR (Software Defined Radio) hardware, and open-source telecom stacks (Osmocom, OpenLTE, Asterisk). The system is designed to:
 
@@ -48,199 +15,95 @@ This platform is for research, education, and lawful security testing only. It r
 
 ---
 
-## Prerequisites & Environment Setup
+## 1. Installation
 
-### System Requirements
-
-- **Operating System:** Ubuntu 22.04 (tested)
-- **Privileges:** Must be run as root (sudo)
-- **Hardware:** Supported SDR (BladeRF-xA4, LimeSDR, USRP B200/ANTSDR)
-- **Internet Access:** Required for package installation and Docker image pulls
-
-### Dependencies
-
-The following packages will be installed automatically by `build.sh`:
-- `chromium-browser`
-- `docker.io`, `docker-compose-v2`, `docker-buildx`
-- `kconfig-frontends`
-- `xterm`, `shellinabox`, `tmux`
-- `libbladerf2`
-
-### Environment Preparation
-
-- Ensure your SDR hardware is connected.
-- Back up any existing `.config` file in the project root (it will be renamed to `.config.old`).
-- The build process will prompt for hardware selection and generate a `.config` file.
-- Docker and network services will be restarted during setup.
+1. **Clone the repository and enter the project directory:**
+   ```bash
+   git clone <repo_url>
+   cd LTE-Redirection_Attack
+   ```
+2. **Run the build script:**
+   ```bash
+   sudo ./build.sh
+   ```
+   - Follow the hardware selection menu to choose your SDR and features (Osmocom, OpenLTE, Asterisk).
+   - The script will install dependencies, reset firewall rules, and build all required Docker containers.
+   - No manual intervention should be needed if the script completes successfully.
 
 ---
 
-## Step-by-Step Usage Instructions
+## 2. Running the LTE-Redirection_Attack
 
-### 1. Running `sudo ./build.sh`
+1. **Run the main script:**
+   ```bash
+   sudo ./run.sh
+   ```
+   - Respond to prompts for network interface and IP address.
+   - The script will configure NAT, start all containers, and open interactive terminals for 2G, LTE redirection, and Asterisk.
 
-**Purpose:**  
-Prepares the environment, installs dependencies, configures hardware, resets firewall rules, and builds all required Docker containers.
-
-#### What Happens Step-by-Step
-
-1. **Install Dependencies:**  
-   Installs all required system packages for SDR, Docker, and supporting tools.
-
-2. **Backup Configuration:**  
-   If a `.config` file exists, it is renamed to `.config.old` to preserve previous settings.
-
-3. **Set Working Directory:**  
-   The script determines its own directory and sets `$MYPATH` for consistent path usage.
-
-4. **Reset Firewall Rules:**  
-   Runs `reset_tables.sh` to flush and reset all iptables rules, ensuring a clean network state.
-
-5. **Restart Docker & Network:**  
-   - Restarts the Docker service.
-   - Releases and renews the DHCP lease to ensure proper network configuration.
-
-6. **Hardware Selection & Detection:**  
-   - Runs `scripts/check_hw.sh`, which uses a menu-driven interface (`kconfig-mconf builder/selected_stuff`) to let you select your SDR hardware and features (Osmocom, OpenLTE, Asterisk).
-   - Generates a `.config` file with your selections.
-
-7. **(Conditional) Build Hardware-Specific Containers:**  
-   - If the environment variable `REPONSE` is set to 1, builds and starts Docker containers in `builder/` and `builder/bladerf/`.
-
-8. **Build and Start Core Services:**  
-   - Runs `osmocom.sh` to build and start all Osmocom network components (core, HLR, MGW, STP, GGSN, SGSN, MSC, BSC, SIP, TRX, BTS, PCU) as Docker containers.
-   - Runs `asterisk.sh` to build and start the Asterisk VoIP server as a Docker container.
-   - Runs `openlte.sh` to build and start the OpenLTE redirector as a Docker container.
-
-**User Prompts:**  
-- You will interact with a hardware selection menu.
-- No other user input is required during `build.sh`.
-
-**Expected Outcome:**  
-- All required containers are built and running.
-- Network and firewall are reset and configured.
-- The system is ready for runtime configuration and attack simulation via `run.sh`.
-
-### 2. Running `sudo ./run.sh`
-
-**Purpose:**  
-Launches the full attack/test environment, configures network interfaces, starts all required containers, and opens interactive terminals for 2G, LTE redirection, and Asterisk.
-
-#### What Happens Step-by-Step
-
-1. **Root Privilege Check:**  
-   Ensures the script is run as root. Exits if not.
-
-2. **Set Working Directory:**  
-   Sets `$MYPATH` to the script's directory for consistent path usage.
-
-3. **Run SRSRAN Performance Script:**  
-   Executes `srsran_performance` (purpose: likely to benchmark or check SDR performance).
-
-4. **Prompt for Forwarding Interface (Device):**  
-   Asks the user to enter the network interface to use for forwarding (e.g., `enp3s0`, `eth0`).
-
-5. **Configure NAT for EPC:**  
-   Runs `srsepc_if_masq.sh <interface>` to enable IP forwarding and set up NAT (masquerading) for the selected interface.
-
-6. **Prompt for Forwarding Interface (IP):**  
-   Asks the user to enter the IP address for the forwarding interface.
-
-7. **Update Osmocom Configs:**  
-   - Updates `osmo_egprs/configs/osmo-bsc.cfg` to set the remote IP.
-   - Updates `osmo_egprs/configs/osmo-sgsn.cfg` to set the listen IP.
-
-8. **Prompt to Restart Docker:**  
-   Asks if Docker should be restarted. Defaults to "Y" (yes).
-
-9. **Restart Docker (if chosen):**  
-   Restarts the Docker service if the user agrees.
-
-10. **Trigger Udev and Choose Interface:**  
-    - Triggers udev events to ensure device nodes are up to date.
-    - Runs `choose_interface.sh` to select and propagate the chosen interface configuration to all relevant locations.
-
-11. **Load GTP Kernel Module:**  
-    Loads the GTP (GPRS Tunneling Protocol) kernel module for mobile core networking.
-
-12. **Stop Udev Services:**  
-    Stops udev and related systemd sockets to avoid conflicts.
-
-13. **Start Docker Containers:**  
-    - Starts Osmocom EGPRS containers (`osmo_egprs/`).
-    - Starts LTE redirection containers (`redirect_4_2g/`).
-    - Starts Asterisk VoIP container (`asterisk/`).
-
-14. **Open Interactive Terminals:**  
-    - Opens a terminal for 2G base station (`2G.sh`).
-    - Opens a terminal for LTE redirection (`redir.sh`).
-    - Opens a terminal for Asterisk (`asterisk.sh`).
-
-15. **Set DNS Resolver:**  
-    Sets `/etc/resolv.conf` to use Google DNS (8.8.8.8).
-
-16. **Enable Forwarding and NAT:**  
-    - Runs `forward.sh` to enable IP forwarding and set up additional NAT rules for interfaces `enp114s0` and `apn0`.
-
-17. **Re-run NAT for EPC:**  
-    Runs `srsepc_if_masq.sh enp114s0` to ensure NAT is set up for the main interface.
-
-18. **Open Telnet Session:**  
-    Opens a telnet connection to `172.17.0.2` on port `30001` (likely to interact with a running service or container).
-
-**User Prompts:**  
-- Forwarding interface (device name)
-- Forwarding interface (IP address)
-- Whether to restart Docker
-
-**Expected Outcome:**  
-- All containers and services are running.
-- Network interfaces and NAT are configured.
-- Interactive terminals are open for 2G, LTE, and Asterisk.
-- The system is ready for attack simulation or research.
+2. **Monitor the terminals:**
+   - Terminals for 2G, LTE redirection, and Asterisk will open automatically.
+   - The system is now ready for attack simulation or research.
 
 ---
 
-## Troubleshooting & Common Issues
+## 3. Troubleshooting & Manual Steps (Fallback)
 
-- **Script must be run as root:**  
-  Both `build.sh` and `run.sh` require root privileges. Always use `sudo`.
+If the automation does not complete all steps, use the following manual interventions:
 
-- **Docker or network errors:**  
-  Ensure Docker is installed and running. The scripts will attempt to restart Docker, but check `systemctl status docker` if issues persist.
+### a. Edit Osmocom Config Files
+- If the automation does not set the correct IPs in `osmo-bsc.cfg` and `osmo-sgsn.cfg`, edit them manually:
+  - In `osmo_egprs/configs/osmo-bsc.cfg`, set:
+    ```
+    0 remote ip <your_internet_interface_ip>
+    ```
+  - In `osmo_egprs/configs/osmo-sgsn.cfg`, set:
+    ```
+    listen <your_internet_interface_ip>
+    ```
 
-- **SDR hardware not detected:**  
-  Make sure your SDR is connected before running `build.sh`. Use `lsusb` to verify hardware presence.
+### b. Start Osmocom Services Manually
+- If the Osmocom terminal does not start the required services, run:
+  ```bash
+  ./tun.sh
+  ./osmo-all.sh start
+  osmo-trx-uhd
+  ```
 
-- **Firewall/NAT issues:**  
-  The scripts reset and configure iptables. If you have custom firewall rules, back them up before running.
+### c. Network Forwarding/NAT
+- If network forwarding is not working, run:
+  ```bash
+  bash reset_iptables.sh
+  ./srsepc_if_masq.sh <your_interface>
+  # If needed:
+  iptables -A POSTROUTING -t nat -s 176.16.32.0/20 ! -d 176.32.16.0/20 -j MASQUERADE
+  ```
 
-- **Missing dependencies:**  
-  `build.sh` installs all required packages, but if you see missing command errors, rerun `build.sh` or install the package manually.
-
-- **Interactive terminals do not open:**  
-  The scripts use `gnome-terminal`. If you use a different desktop environment, modify the script to use your terminal emulator.
-
-- **Configuration not applied:**  
-  If changes to `.config` or hardware selection are not reflected, delete `.config` and rerun `build.sh`.
+### d. LTE Node Redirector Configuration
+- If the LTE redirector is not configured automatically, use the provided Python scripts in `scripts/` (e.g., `telnet_orange.py`) or connect via telnet and enter the following commands:
+  ```
+  write mcc <replace>
+  write mnc <replace>
+  write tracking_area_code <replace>
+  write band <replace>
+  write dl_earfcn <replace>
+  write tx_gain 80
+  write rx_gain 30
+  start
+  ```
 
 ---
 
-## Additional Notes
+## 4. Additional Notes
 
-- **Security Warning:**  
-  This project is for research and lawful testing only. Running fake base stations is illegal in many jurisdictions without proper authorization.
+- **SDR Hardware:** You need at least two SDRs (one for LTE, one for 2G) for a full real-time redirection attack.
+- **Root Privileges:** All scripts must be run as root (sudo).
+- **Logs:** Use `docker logs <container_name>` or check the running terminals for service logs.
+- **Stopping the Environment:** Use `docker compose down` in each service directory or reboot to reset network/firewall changes.
+- **Security Warning:** Running fake base stations is illegal in many jurisdictions without proper authorization.
 
-- **Stopping the Environment:**  
-  Use `docker compose down` in each service directory to stop containers. Reboot to reset network and firewall changes.
+---
 
-- **Logs and Debugging:**  
-  - Docker logs: `docker logs <container_name>`
-  - Service logs: Check within each running terminal or container.
-
-- **Extending the System:**  
-  - Add new SDR hardware by editing `builder/selected_stuff` and `scripts/check_hw.sh`.
-  - Add new network services by creating new Dockerfiles and compose files in the appropriate directories.
-
-- **Further Reading:**  
-  See the `README_old.md` for additional context and manual steps for advanced use. 
+## 5. References
+- See the original `README_old.md` for more context and manual steps.
+- For video walkthrough: [build](https://youtu.be/0aruLybY__w) 
