@@ -1,6 +1,6 @@
 # Setup and Installation
 
-This document details the process of setting up and installing the LTE-Redirection Attack system. It covers all necessary prerequisites, hardware requirements, and installation steps to establish a fully functioning environment for cellular network security research and testing. For information about actually executing the attack once installation is complete, see the "Running the Attack" documentation.
+This document details the process of setting up and installing the LTE-Redirection Attack system. It covers all necessary prerequisites, hardware requirements, and installation steps to establish a fully functioning environment for cellular network security research and testing. For information about actually executing the attack once installation is complete, see the [Running the Attack](3) documentation.
 
 ---
 
@@ -57,6 +57,7 @@ cd LTE-Redirection_Attack
 ```bash
 sudo ./build.sh
 ```
+![](Build-Script.png)
 
 ---
 
@@ -86,6 +87,9 @@ The `build.sh` script performs the following key operations:
 ## Hardware Selection Process
 
 The hardware selection is a critical part of the installation:
+
+![](Hardware-Selection.png)
+
 - The build script calls `scripts/check_hw.sh`, which presents a menu-driven interface.
 - User selects their SDR hardware type and features.
 - A `.config` file is generated and used by all components.
