@@ -58,6 +58,8 @@ Additional hardware requirements include:
 
 ## Core Components in Detail
 
+![](Core-Components-in-Detail.png)
+
 ### LTE Redirector (redirect_4_2g)
 
 The LTE redirector component is a modified version of OpenLTE that creates a fake LTE base station. Its primary functions are:
