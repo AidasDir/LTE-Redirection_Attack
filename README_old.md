@@ -1,200 +1,156 @@
-# LTE-Redirection Attack
-*A tool designed to force target victims to connect to an unsafe network by implementing a fake base station and LTE redirection attack.*
-
-[Build Video Tutorial](https://youtu.be/0aruLybY__w)
-
-## Table of Contents
-
-1.  [Overview](#overview)
-2.  [Prerequisites](#prerequisites)
-3.  [Installation](#installation)
-4.  [Configuration](#configuration)
-5.  [Usage](#usage)
-6.  [Troubleshooting](#troubleshooting)
-7.  [Contributing](#contributing)
-8.  [References](#references)
-9.  [Legal Notice](#legal-notice)
-
-
-**DISCLAIMER:** This project is shared for educational purposes only. The developer makes no guarantees about its current functionality as testing results have been inconsistent. Use responsibly and at your own risk.
+# LTE-Redirection Attack - System Overview
 
 ## Overview
 
-This tool creates a fake 2G EGPRS base station and redirects LTE devices to connect to it, allowing for potential man-in-the-middle attacks. The implementation uses a combination of software-defined radio techniques with Osmocom and srsRAN components.
+The LTE-Redirection_Attack repository is a comprehensive research platform designed for cellular network security testing and analysis. This system enables the creation of a controlled environment for testing mobile device vulnerabilities through network downgrade attacks, specifically by forcing LTE-connected devices to downgrade to less secure 2G/EGPRS networks.
 
-## Prerequisites
+## System Purpose and Capabilities
 
-- Ubuntu 22.04 (tested platform)
-- Software-defined radio hardware (compatible with UHD)
-- Basic understanding of cellular networks
-- Root privileges
+The LTE-Redirection Attack platform enables researchers and security professionals to:
 
-## Installation
+1. Deploy a fake LTE base station (eNodeB) that mobile devices will connect to
+2. Force connected devices to downgrade from secure LTE connections to less secure 2G/EGPRS
+3. Capture and analyze traffic through a controlled 2G network environment
+4. Intercept and analyze voice calls using an integrated Asterisk PBX
+5. Configure the attack for different mobile network operators (MNOs)
 
-Clone the repository and build the necessary components:
+The system is containerized using Docker for consistent deployment and includes support for various Software Defined Radio (SDR) hardware options.
 
-```bash
-git clone https://github.com/yourusername/LTE-Redirection_Attack.git
-cd LTE-Redirection_Attack
-sudo ./build.sh
-```
+---
 
-## Configuration
+## System Architecture
 
-Before running the attack, you need to configure several files:
+The LTE-Redirection Attack platform consists of three primary Docker containers that work together to execute the attack:
 
-### 1. Modify `osmo-bsc.cfg`
+1. **redirect_4_2g Container**: Implements a fake LTE base station using modified OpenLTE that broadcasts selected Mobile Country Code (MCC) and Mobile Network Code (MNC) to target specific networks and configures redirection parameters to force devices to downgrade to 2G.
+2. **osmo_egprs Container**: Implements a complete Osmocom-based 2G network stack including HLR, MSC, BSC, SGSN, GGSN components for full cellular functionality, providing data services through GTP tunneling.
+3. **asterisk Container**: Implements Asterisk PBX for call handling and integration with the Osmocom voice stack.
+4. **Network Routing**: Configures NAT and IP forwarding to route traffic between captured devices and the internet.
 
-Open `osmo-bsc.cfg` and change:
+---
 
-- The remote IP address from `192.168.1.23` to your internet interface IP (192.168.X.X)
+## Hardware Requirements
 
-### 2. Set Appropriate MCC/MNC Values
+The system requires at least two Software Defined Radios (SDRs):
 
-The Mobile Country Code (MCC) and Mobile Network Code (MNC) uniquely identify a mobile network operator. Setting these values correctly in the `osmo-bsc.cfg` and LTE redirector is crucial for a successful redirection attack.  Incorrect values will prevent devices from associating with your fake base station.
+1. **Primary SDR for LTE Base Station:**  
+   Handles the LTE redirection attack.  
+   Compatible hardware: BladeRF-xA4 (preferred), LimeSDR, USRP B200/ANTSDR
+2. **Secondary SDR for 2G/EGPRS Base Station:**  
+   Handles the 2G network that devices connect to after redirection.  
+   Compatible hardware: Same options as above, but requires a separate physical device
 
-**A. Understanding MCC and MNC:**
+Additional hardware requirements include:
+- Computer running Ubuntu 22.04 (tested platform)
+- Sufficient USB ports and bandwidth for SDR devices
+- Minimum 8GB RAM and quad-core CPU recommended
+- Internet connection for package downloads and traffic forwarding
 
-*   **MCC (Mobile Country Code):** A three-digit code that identifies the country in which the mobile network is registered. (e.g., 310 for the United States, 262 for Germany, 208 for France).
-*   **MNC (Mobile Network Code):** A two or three-digit code that, in combination with the MCC, uniquely identifies a mobile network operator within that country.
+---
 
-**B. Finding the Correct MCC/MNC for Your Target Network:**
+## Core Components in Detail
 
-There are several ways to find the MCC/MNC of a target network:
+### LTE Redirector (redirect_4_2g)
 
-*   **Online Databases:** Several websites maintain databases of MCC and MNC values.  A good starting point is Wikipedia:
-    *   [List of mobile country codes](https://en.wikipedia.org/wiki/Mobile_country_code) - provides an overview of MCC values
-    *   Search online for "MNC list" or "MCC MNC database" to find more specific resources.
-*   **Network Scanning Apps:** Smartphone apps designed to display cellular network information can reveal the MCC and MNC of the network to which the phone is currently connected. Examples of such apps include:
-    *   **Android:** Network Cell Info Lite, Cellmapper
-    *   **iOS:**  Field Test Mode (dial \*3001#12345#\* and tap call - this provides very detailed technical information) - While iOS doesn't offer dedicated apps with the same level of detail as Android, Field Test Mode can provide some network information if you know how to interpret it.  Use with caution and research how to use it effectively.
-*   **3GPP Specifications:** The 3rd Generation Partnership Project (3GPP) defines cellular standards.  While these specifications won't directly list MCC/MNC pairs, they provide the framework within which these codes are assigned.
-*   **Government Regulatory Websites:** In some countries, government agencies responsible for telecommunications regulation publish lists of assigned MCC and MNC values.
+The LTE redirector component is a modified version of OpenLTE that creates a fake LTE base station. Its primary functions are:
 
-**C.  General Guidelines for Finding MCC/MNC:**
+1. Broadcasting a selected operator's MCC/MNC to attract target devices
+2. Configuring specific LTE bands and frequencies (EARFCN values)
+3. Forcing connected devices to downgrade to 2G through RRC Connection Release messages
+4. Providing a telnet interface (port 30000) for runtime configuration
 
-*   **Identify the Country:** Determine the country where the target network operates. This will give you the MCC.
-*   **Identify the Operator:** Determine the specific mobile network operator (e.g., Verizon, AT&T, T-Mobile in the US; Vodafone, O2, Deutsche Telekom in Germany).
-*   **Search Online:** Use the country and operator name to search online for the corresponding MNC.  For example, "MNC Verizon USA".
-*   **Verify with Multiple Sources:** Cross-reference the information you find from different sources to ensure accuracy.  MCC/MNC values can change over time.
+Key configuration parameters include:
+- MCC (Mobile Country Code)
+- MNC (Mobile Network Code)
+- Tracking Area Code (TAC)
+- LTE Band
+- Downlink EARFCN (frequency)
+- Transmit and receive gain settings
 
-**D. Example MCC/MNC Combinations (Illustrative Only - Verify Current Values):**
+### 2G/EGPRS Network (osmo_egprs)
 
-| Country        | Operator           | MCC   | MNC   | Notes                                                                  |
-|----------------|--------------------|-------|-------|------------------------------------------------------------------------|
-| United States  | Verizon            | 311   | 480   | Large US carrier                                                      |
-| United States  | AT&T               | 310   | 410   | Another major US carrier                                               |
-| United States  | T-Mobile           | 310   | 260   |                                                                        |
-| Germany        | Vodafone           | 262   | 02    |                                                                        |
-| Germany        | Deutsche Telekom   | 262   | 01    |                                                                        |
-| France         | Orange             | 208   | 01    |                                                                        |
-| United Kingdom | Vodafone           | 234   | 15    |                                                                        |
-| Japan          | NTT DoCoMo         | 440   | 10    |                                                                        |
-| China          | China Mobile       | 460   | 00, 02 | Note: China Mobile uses multiple MNCs.                               |
+The 2G/EGPRS network uses the Osmocom stack to provide a complete cellular network that devices connect to after being redirected. Components include:
 
-**E.  Important Considerations:**
+- **osmo-hlr**: Home Location Register, stores subscriber information
+- **osmo-msc**: Mobile Switching Center, handles call routing
+- **osmo-bsc**: Base Station Controller, manages BTS
+- **osmo-sgsn**: Serving GPRS Support Node, handles data sessions
+- **osmo-ggsn**: Gateway GPRS Support Node, provides internet access
+- **osmo-trx**: Transceiver interface to SDR hardware
+- **osmo-bts**: Base Transceiver Station, the radio interface
+- **osmo-pcu**: Packet Control Unit, handles GPRS/EDGE data
 
-*   **Network Changes:** MCC/MNC values can be reassigned or changed when networks merge or are acquired. Always verify the most up-to-date information.
-*   **Virtual Network Operators (MVNOs):** MVNOs (e.g., Mint Mobile in the US) may use the MCC/MNC of the host network on which they operate, or they may have their own assigned values.  Research the specific MVNO.
-*   **Testing:** After configuring the MCC/MNC, test your setup to confirm that devices are able to associate with your fake base station. If devices fail to connect, double-check the MCC/MNC and other network parameters.
+Key configuration files are located in `osmo_egprs/configs/` and include:
+- `osmo-bsc.cfg`: BSC configuration, including remote IP address
+- `osmo-sgsn.cfg`: SGSN configuration, including listen IP address
+- `osmo-msc.cfg`: MSC configuration
+- `osmo-ggsn.cfg`: GGSN configuration
 
+### Asterisk VoIP Integration
 
-### 3. Modify `osmo-sgsn.cfg`
+The Asterisk VoIP server is used to handle voice calls in the captured network. It connects to Osmocom through the osmo-sip-connector. Key configuration files in the `asterisk/` directory include:
+- `sip.conf`: SIP protocol configuration
+- `extensions.conf`: Call routing configuration
 
-Open `osmo-sgsn.cfg` and change:
+The Asterisk container starts with high verbosity for debugging purposes.
 
-The bind UDP local and listen IP from 192.168.1.23 to your interface IP
+---
 
-## Usage
+## Attack Flow Sequence
 
-### Step 1: Run the main script
+1. Deploy the LTE redirector (redirect_4_2g) to attract and connect target devices.
+2. Force connected devices to downgrade to 2G using RRC Connection Release messages.
+3. Devices connect to the 2G/EGPRS network (osmo_egprs), which provides full cellular and data services.
+4. Voice calls are handled and can be intercepted/analyzed via the Asterisk PBX.
+5. All network traffic is routed through NAT and IP forwarding for analysis or internet access.
 
-```bash
-sudo ./run.sh
-```
+---
 
-### Step 2: Set up the 2G EGPRS Fake Base Station
+## Setup and Operation Scripts
 
-In the Osmocom terminal that appears:
+### build.sh
+Prepares the environment, installs dependencies, configures hardware, and builds Docker containers:
+1. Installs required dependencies
+2. Backs up any existing configuration
+3. Resets iptables rules
+4. Restarts Docker service
+5. Runs hardware detection and selection
+6. Builds containers for selected hardware and components
 
-```bash
-./tun.sh
-./osmo-all.sh start
-osmo-trx-uhd
-```
+### run.sh
+Launches the attack environment, configures network interfaces, and opens interactive terminals:
+1. Prompts for forwarding interface device and IP
+2. Configures interface masquerading with `srsepc_if_masq.sh`
+3. Updates Osmocom configs with the provided IP
+4. Runs `choose_interface.sh` for operator selection
+5. Starts all Docker containers
+6. Opens terminals for 2G, LTE redirection, and Asterisk
+7. Sets up forwarding and NAT rules
+8. Provides telnet access to the containers
 
-### Step 3: Configure IP forwarding on the host
+---
 
-In a separate terminal, set up IP forwarding:
+## Operator Configuration
 
-```bash
-bash reset_iptables.sh
-./srsepc_if_masq.sh your_interface
-```
-Replace your_interface with your network interface name (e.g., eth0, wlan0).
+The system can be configured to target specific mobile network operators by setting the appropriate MCC and MNC values. The `choose_interface.sh` script provides a menu-driven selection for common operators, and the selection is stored in an `operator` file used by `scripts/redir.sh`.
 
-### Step 4: Configure and start the LTE Node redirector
+Operator-specific configuration is handled through Python scripts:
+- `scripts/telnet_orange.py`: Configuration for Orange (MCC: 208, MNC: 01)
+- `scripts/telnet_sfr.py`: Configuration for SFR (MCC: 208, MNC: 10)
+- `scripts/telnet_free.py`: Configuration for Free (MCC: 208, MNC: 15)
+- `scripts/telnet_bouygues.py`: Configuration for Bouygues/Lyca (MCC: 208, MNC: 20/25)
 
-In the LTE redirector terminal, enter the following commands one by one. **It is crucial to use values relevant to your target network and regulatory domain. Conduct thorough research to ensure accuracy.**
+These scripts automate the configuration of the LTE redirector for each operator's specific network parameters.
 
-```bash
-write mcc 310          # Replace with target network MCC. Examples: 310 (USA), 262 (Germany), 208 (France).  Find a complete list at https://en.wikipedia.org/wiki/Mobile_country_code
+---
 
-write mnc 260          # Replace with target network MNC. Examples (USA): 260 (T-Mobile), 410 (AT&T), 120 (Sprint - may be decommissioned).  Check https://en.wikipedia.org/wiki/Mobile_Network_Code for listings.
+## Legal Considerations
 
-write tracking_area_code 12345 # Choose a suitable TAC (1-65535). Common values are often network-specific and regionally diverse, requiring local research.
+This tool is intended for security research, education, and authorized penetration testing to demonstrate vulnerabilities in cellular networks. Running fake base stations is illegal in many jurisdictions without proper authorization and may violate telecommunications laws.
 
-write mcc 310          # Confirm MCC again
+The platform showcases how malicious actors could force devices to connect to less secure networks, potentially exposing them to interception or manipulation. This knowledge is essential for developing countermeasures and improving network security.
 
-write mnc 260          # Confirm MNC again
+---
 
-write band 2           # Set appropriate LTE band.
+*Source: [DeepWiki LTE-Redirection_Attack Overview](https://deepwiki.com/AidasDir/LTE-Redirection_Attack/1-overview)*
 
-# Options for 'band' (Examples - consult local spectrum allocations):
-#   2: 1900 MHz (PCS) - Commonly used in the Americas
-#   4: 1700/2100 MHz (AWS) - Common in the Americas
-#   7: 2600 MHz - Used in Europe and Asia
-#   12: 700 MHz - Used in the USA
-#   13: 700 MHz - Verizon (USA)
-#   20: 800 MHz - Europe
-#   28: 700 MHz - Asia-Pacific
-#  Check local spectrum regulations for permitted bands.
-
-write dl_earfcn 775     # Calculate and set the correct EARFCN for the chosen band and downlink frequency.
-#   EARFCN Calculation:  The EARFCN depends on the downlink frequency and LTE band.  Use an online calculator like https://www.cellmapper.net/arfcn or consult 3GPP specifications.
-#   Example: For Band 2 (1900 MHz), a common EARFCN might be around 775, but this *must* be verified against the specific frequency used by the target network in your area.
-
-write tx_gain 80      # Adjust transmit gain (0-100). Higher values increase signal strength, but can cause interference or violate regulations.
-write rx_gain 30      # Adjust receive gain (0-50). Optimize for signal reception.
-start                  # Starts the LTE redirector
-```
-
-## Troubleshooting
-
-- If the attack doesn't work, try adjusting the tx_gain and rx_gain values.
-- Ensure your SDR hardware is properly connected and recognized.
-- Verify that the MCC/MNC values match your target network.
-- Check system logs for any errors in the Osmocom or srsRAN components.
-
-## Contributing
-
-Pull requests and issues that help improve this project are welcome. Please be constructive with feedback as this is a solo project.
-
-## References
-
-- [Build video tutorial](https://youtu.be/0aruLybY__w)
-- [Osmocom Project](https://osmocom.org/)
-- [srsRAN](https://www.srslte.com/)
-- [EARFCN Calculator](https://www.cellmapper.net/arfcn) (Example - Use a trusted online EARFCN calculator)
-- [LTE Frequency Bands](https://en.wikipedia.org/wiki/LTE_frequency_bands) (Wikipedia)
-- [List of mobile country codes](https://en.wikipedia.org/wiki/Mobile_country_code) (Wikipedia)
-- [Mobile Network Code](https://en.wikipedia.org/wiki/Mobile_Network_Code) (Wikipedia)
-
-**Additional Resources:**
-
-*   [3GPP Specifications](https://www.3gpp.org/specifications) - Official documentation for cellular standards. Requires significant technical knowledge.
-
-
-## Legal Notice
-
-This tool is intended for security research, testing on your own networks, or in controlled environments with proper authorization. Unauthorized use against third-party networks may violate local laws.
