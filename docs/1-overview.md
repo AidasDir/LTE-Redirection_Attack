@@ -28,7 +28,7 @@ The system is containerized using Docker for consistent deployment and includes 
 
 The LTE-Redirection Attack platform consists of three primary Docker containers that work together to execute the attack:
 
-![](docs/System-Architecture.png)
+![](System-Architecture.png)
 
 1. **redirect_4_2g Container**: Implements a fake LTE base station using modified OpenLTE that broadcasts selected Mobile Country Code (MCC) and Mobile Network Code (MNC) to target specific networks and configures redirection parameters to force devices to downgrade to 2G.
 2. **osmo_egprs Container**: Implements a complete Osmocom-based 2G network stack including HLR, MSC, BSC, SGSN, GGSN components for full cellular functionality, providing data services through GTP tunneling.
