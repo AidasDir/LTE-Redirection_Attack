@@ -10,6 +10,8 @@ This document details the Python environment used within the LTE-Redirection Att
 
 The Python environment for this system is based on Python 3.7 and is initialized through a dedicated setup script. This ensures consistent operation across different systems where the attack might be deployed.
 
+![](Environment-Setup.png)
+
 The environment initialization process includes:
 
 1. Downloading pip for Python 2.7 (legacy requirement)
@@ -36,6 +38,8 @@ The primary Python components in this system are the telnet configuration script
 ### Script Structure and Operation
 
 The telnet scripts use an asynchronous approach with the `asyncio` and `telnetlib3` libraries to communicate with the redirector container.
+
+![](Script-Structure-and-Operation.png)
 
 *Sources: [`scripts/telnet_free.py`](../scripts/telnet_free.py)*
 
