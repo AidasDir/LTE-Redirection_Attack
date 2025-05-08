@@ -6,7 +6,7 @@ This page provides a comprehensive guide for executing the LTE redirection attac
 
 The LTE redirection attack follows a specific sequence that begins with system initialization and ends with mobile devices being redirected to a controlled 2G network where traffic can be monitored and manipulated.
 
-![](Attack-Flow-Sequence.png)
+![](Attack-Sequence-Diagram.png)
 
 ## Preparing to Run the Attack
 
@@ -17,6 +17,8 @@ Before executing the attack, ensure that you have:
 3. Root/sudo privileges for executing the scripts
 
 ### Component Architecture During Attack Execution
+
+![](Component-Architecture-During-Attack-Execution.png)
 
 ## Running the Attack
 
@@ -63,6 +65,8 @@ After providing the necessary information, the script performs the following act
 The LTE redirector component creates a fake LTE base station that attracts target mobile devices and then instructs them to connect to the 2G network.
 
 ### LTE Redirector Configuration Process
+
+![](LTE-Redirector-Configuration-Process.png)
 
 For details on configuration, see [LTE Redirector Operation](3.2-lte-redirector-operation.md).
 
