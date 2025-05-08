@@ -159,7 +159,7 @@ This system is designed exclusively for research, education, and authorized secu
 
 ## Next Steps
 
-After successful installation, proceed to "Running the Attack" to learn how to configure and operate the system.
+After successful installation, proceed to [Running the Attack](3-running-the-attack.md) to learn how to configure and operate the system.
 
 ---
 
