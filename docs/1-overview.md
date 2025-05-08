@@ -108,6 +108,8 @@ The Asterisk container starts with high verbosity for debugging purposes.
 
 ## Attack Flow Sequence
 
+![](Attack-Flow-Sequence.png)
+
 1. Deploy the LTE redirector (redirect_4_2g) to attract and connect target devices.
 2. Force connected devices to downgrade to 2G using RRC Connection Release messages.
 3. Devices connect to the 2G/EGPRS network (osmo_egprs), which provides full cellular and data services.
