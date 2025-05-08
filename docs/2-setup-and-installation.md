@@ -7,6 +7,9 @@ This document details the process of setting up and installing the LTE-Redirecti
 ## Overview
 
 The LTE-Redirection Attack system consists of three primary Docker containers that work together to create a controlled testing environment:
+
+![](Installation-Components.png)
+
 - **redirect_4_2g**: Fake LTE base station (OpenLTE-based)
 - **osmo_egprs**: Complete 2G/EGPRS network (Osmocom-based)
 - **asterisk**: VoIP PBX for call handling (Asterisk)
