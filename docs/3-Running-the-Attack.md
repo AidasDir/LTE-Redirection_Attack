@@ -27,12 +27,15 @@ The attack is executed by running the main control script, which orchestrates al
 ### Starting the System
 
 1. Execute the main script with root privileges:
+```bash
+sudo ./run.sh
+```
 2. When prompted, provide the following information:  
    * **Forwarding Interface Device**: The network interface that will be used for internet access (e.g., `eth0`, `wlan0`)  
    * **Forwarding Interface IP**: The IP address of the selected interface  
    * **Restart Docker** (optional): Whether to restart the Docker service (default is "Y")
 
-```
+```bash
 Forwarding Interface, device ? eth0
 Forwarding Interface, ip ? 192.168.1.5
 Restart docker: [Y/n]: Y
@@ -75,8 +78,11 @@ For details on configuration, see [LTE Redirector Operation](3.2-lte-redirector-
 If the automatic configuration fails, you can manually configure the LTE redirector through the telnet interface:
 
 1. Connect to the LTE redirector:
-2. Configure the essential parameters:  
+```bash
+telnet 172.17.0.2 30000
 ```
+2. Configure the essential parameters:  
+```bash
 write mcc 208            # Mobile Country Code (e.g., 208 for France)  
 write mnc 01             # Mobile Network Code (e.g., 01 for Orange)  
 write tracking_area_code 1  # Tracking Area Code  
