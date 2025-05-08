@@ -1,6 +1,6 @@
 # Setup and Installation
 
-This document details the process of setting up and installing the LTE-Redirection Attack system. It covers all necessary prerequisites, hardware requirements, and installation steps to establish a fully functioning environment for cellular network security research and testing. For information about actually executing the attack once installation is complete, see the [Running the Attack](3) documentation.
+This document details the process of setting up and installing the LTE-Redirection Attack system. It covers all necessary prerequisites, hardware requirements, and installation steps to establish a fully functioning environment for cellular network security research and testing. For information about actually executing the attack once installation is complete, see the [Running the Attack](3-Running-the-Attack.md) documentation.
 
 ---
 
