@@ -153,6 +153,24 @@ Once all components are running, you can monitor the attack process to verify it
 
 ### Essential Monitoring Commands
 
+```
+# Check running Docker containers
+docker ps
+
+# View logs from LTE redirector container
+docker logs redirect_4_2g-example
+
+# View logs from 2G network container
+docker logs osmo_egprs-example
+
+# Monitor network interfaces
+ip addr
+ip route
+
+# Check NAT rules
+iptables -t nat -L
+```
+
 ## Troubleshooting Common Issues
 
 ### LTE Redirector Issues
