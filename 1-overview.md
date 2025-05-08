@@ -4,6 +4,11 @@
 
 The LTE-Redirection_Attack repository is a comprehensive research platform designed for cellular network security testing and analysis. This system enables the creation of a controlled environment for testing mobile device vulnerabilities through network downgrade attacks, specifically by forcing LTE-connected devices to downgrade to less secure 2G/EGPRS networks.
 
+This page provides a high-level understanding of the system architecture, components, and workflow. For detailed setup instructions, see 
+The LTE-Redirection_Attack repository is a comprehensive research platform designed for cellular network security testing and analysis. This system enables the creation of a controlled environment for testing mobile device vulnerabilities through network downgrade attacks, specifically by forcing LTE-connected devices to downgrade to less secure 2G/EGPRS networks.
+
+This page provides a high-level understanding of the system architecture, components, and workflow. For detailed setup instructions, see [Setup and Installation](2-setup-and-installation.md), and for running the attack, see Running the Attack., and for running the attack, see Running the Attack.
+
 ## System Purpose and Capabilities
 
 The LTE-Redirection Attack platform enables researchers and security professionals to:
