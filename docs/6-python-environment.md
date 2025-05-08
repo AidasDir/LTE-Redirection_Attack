@@ -4,7 +4,7 @@ Relevant source files
 * [`init_pyenv.sh`](../init_pyenv.sh)
 * [`scripts/telnet_free.py`](../scripts/telnet_free.py)
 
-This document details the Python environment used within the LTE-Redirection Attack system. It covers the setup of the required Python environment and the Python scripts that are used to configure and control various components of the attack system, with a focus on the telnet configuration scripts. For information about running the complete attack process, see [Running the Attack](running-the-attack.md), and for overall system architecture, see [System Architecture](4-system-architecture.md).
+This document details the Python environment used within the LTE-Redirection Attack system. It covers the setup of the required Python environment and the Python scripts that are used to configure and control various components of the attack system, with a focus on the telnet configuration scripts. For information about running the complete attack process, see [Running the Attack](3-running-the-attack.md), and for overall system architecture, see [System Architecture](4-system-architecture.md).
 
 ## Environment Setup
 
