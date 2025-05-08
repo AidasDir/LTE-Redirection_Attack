@@ -12,7 +12,7 @@ The system selects which mobile operator to impersonate during the attack throug
 
 ![](Operator-Configuration-2.png)
 
-**Sources:** `scripts/operator` `osmo_egprs/configs/operator` `redirect_4_2g/scripts/operator` `operator`
+*Sources: [`scripts/operator`](../scripts/operator) [`osmo_egprs/configs/operator`](../osmo_egprs/configs/operator) [`redirect_4_2g/scripts/operator`](../redirect_4_2g/scripts/operator) [`operator`](../operator)*
 
 ## Supported Operators
 
