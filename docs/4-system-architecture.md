@@ -66,10 +66,10 @@ The system extends the MME (Mobility Management Entity) implementation to handle
 
 | MME Procedure/State Additions           | Purpose                                                |
 | --------------------------------------- | ------------------------------------------------------ |
-| LTE_FDD_ENB_MME_PROC_TAU_REQUEST  | Define new procedure for tracking area update requests |
-| LTE_FDD_ENB_MME_STATE_TAU_REJECT  | Define new state for rejecting tracking area updates   |
-| send_tracking_area_update_request() | Handle incoming tracking area update requests          |
-| send_tracking_area_update_reject()  | Send reject responses to force redirection             |
+| `LTE_FDD_ENB_MME_PROC_TAU_REQUEST`  | Define new procedure for tracking area update requests |
+| `LTE_FDD_ENB_MME_STATE_TAU_REJECT`  | Define new state for rejecting tracking area updates   |
+| `send_tracking_area_update_request()` | Handle incoming tracking area update requests          |
+| `send_tracking_area_update_reject()`  | Send reject responses to force redirection             |
 
 ## 5. Orchestration Scripts
 
